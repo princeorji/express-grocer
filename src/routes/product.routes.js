@@ -1,12 +1,14 @@
 const express = require('express');
 const controller = require('../controller/product');
+const passport = require('passport')
 
 const routes = express.Router();
 
-routes.post('', controller.create);
 routes.get('', controller.products);
 routes.get('/:id', controller.getById);
-routes.patch('/:id', controller.update);
-routes.delete('/:id', controller.remove);
+
+routes.post('', passport.authenticate('jwt', { session: false }),controller.create);
+routes.patch('/:id', passport.authenticate('jwt', { session: false }),controller.update);
+routes.delete('/:id', passport.authenticate('jwt', { session: false }),controller.remove);
 
 module.exports = routes;
