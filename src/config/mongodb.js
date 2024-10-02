@@ -3,7 +3,7 @@ const env = require('../utils/venv');
 
 const mongoURI = env.DATABASE;
 
-const connect = async () => {
+const connectdb = async () => {
   try {
     mongoose.connect(mongoURI);
     console.log('Connection established successfully 🥳');
@@ -13,4 +13,4 @@ const connect = async () => {
 };
 
 // database connection
-connect();
+connectdb();
