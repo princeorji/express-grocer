@@ -2,6 +2,14 @@ const Cart = require('../models/cart');
 const CartItem = require('../models/cartItem');
 const mongoose = require('mongoose');
 const Product = require('../models/product');
+const Order = require('../models/order');
+const OrderItem = require('../models/orderItem');
+const Stripe = require('stripe');
+const env = require('../utils/venv');
+
+const stripe = new Stripe(env.STRIPE_SECRET, {
+  apiVersion: '2024-06-20',
+});
 
 const addToCart = async (req, res, next) => {
   const userId = req.user._id;
@@ -93,8 +101,111 @@ const removeCartItem = async (req, res, next) => {
   }
 };
 
+const checkout = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ error: 'Invalid cart id' });
+    }
+
+    const items = await CartItem.find({ cartId: id });
+
+    if (items.length === 0) {
+      return res.status(200).json({ message: 'Your cart is empty' });
+    }
+
+    // Calculate total price
+    let total = 0;
+
+    for (const item of items) {
+      const product = await Product.findOne({ _id: item.productId });
+
+      if (product && product.price) {
+        total += product.price * item.quantity;
+      }
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(total * 100), // amount in kobo
+      currency: 'ngn',
+      payment_method_types: ['card'],
+    });
+
+    res.status(200).json({
+      paymentIntentId: paymentIntent.id,
+      client_secret: paymentIntent.client_secret,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const finalizeOrder = async (req, res, next) => {
+  const userId = req.user._id;
+  const { paymentIntentId } = req.body;
+  const { id } = req.params;
+
+  try {
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ error: 'Invalid cart id' });
+    }
+
+    if (!paymentIntentId) {
+      return res.status(400).json({ error: 'Parameters missing' });
+    }
+
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    if (paymentIntent.status !== 'succeeded') {
+      return res.status(400).json({ error: 'Payment not successful' });
+    }
+
+    const items = await CartItem.find({ cartId: id });
+
+    if (items.length === 0) {
+      return res.status(200).json({ message: 'Your cart is empty' });
+    }
+
+    let total = 0;
+
+    for (const item of items) {
+      const product = await Product.findById(item.productId);
+
+      if (product && product.price) {
+        total += product.price * item.quantity;
+      }
+    }
+
+    const order = await Order.create({
+      userId,
+      total,
+      status: 'pending',
+    });
+
+    for (const item of items) {
+      const product = await Product.findById(item.productId);
+
+      await OrderItem.create({
+        orderId: order._id,
+        productId: item.productId,
+        quantity: item.quantity,
+        itemPrice: product.price,
+      });
+    }
+
+    // Clear cart items
+    await CartItem.deleteMany({ cartId: id });
+
+    res.status(200).json({ orderId: order._id });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   addToCart,
   cart,
   removeCartItem,
+  checkout,
+  finalizeOrder,
 };
