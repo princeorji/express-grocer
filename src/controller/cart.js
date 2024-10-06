@@ -5,7 +5,7 @@ const Product = require('../models/product');
 const Order = require('../models/order');
 const OrderItem = require('../models/orderItem');
 const Stripe = require('stripe');
-const env = require('../utils/venv');
+const env = require('../utils/setEnv');
 
 const stripe = new Stripe(env.STRIPE_SECRET, {
   apiVersion: '2024-06-20',

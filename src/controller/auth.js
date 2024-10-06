@@ -1,6 +1,6 @@
 const User = require('../models/user');
 const argon = require('argon2');
-const env = require('../utils/venv');
+const env = require('../utils/setEnv');
 const jwt = require('jsonwebtoken');
 
 const signup = async (req, res, next) => {

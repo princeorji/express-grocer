@@ -1,5 +1,5 @@
 const app = require('./app');
-const env = require('./utils/venv');
+const env = require('./utils/setEnv');
 
 require('./config/mongodb');
 

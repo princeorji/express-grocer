@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const env = require('../utils/venv');
+const env = require('../utils/setEnv');
 
 const mongoURI = env.DATABASE;
 
