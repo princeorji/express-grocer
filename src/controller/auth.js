@@ -23,6 +23,8 @@ const signup = async (req, res, next) => {
       password: hashedPassword,
     });
 
+    // exclude password in response
+    user.password = undefined;
     res.status(201).json(user);
   } catch (error) {
     next(error);
@@ -44,7 +46,7 @@ const login = async (req, res, next) => {
 
     const isMatch = await argon.verify(user.password, password);
     if (!isMatch) {
-      return res.status(400).json({ error: 'Incorrect password' });
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     // generate access token
