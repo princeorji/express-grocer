@@ -12,7 +12,7 @@ const opts = {
 passport.use(
   new JwtStrategy(opts, function (jwt_payload, done) {
     try {
-      const user = User.findOne({ id: jwt_payload._id });
+      const user = User.findOne({ _id: jwt_payload.id });
       if (user) {
         return done(null, user);
       } else {

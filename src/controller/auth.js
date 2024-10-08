@@ -50,9 +50,11 @@ const login = async (req, res, next) => {
     }
 
     // generate access token
-    const accessToken = jwt.sign({ _id: user._id }, env.JWT_SECRET, {
-      expiresIn: '1h',
-    });
+    const accessToken = jwt.sign(
+      { _id: user._id, email: user.email },
+      env.JWT_SECRET,
+      { expiresIn: '1h' },
+    );
 
     res.status(200).json({ accessToken });
   } catch (error) {
