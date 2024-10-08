@@ -2,7 +2,7 @@ const supertest = require('supertest');
 const app = require('../app');
 
 const user = {
-  displayName: 'jon doe',
+  name: 'jon',
   email: 'jon.doe@example.com',
   password: '!jon123',
 };
@@ -13,7 +13,7 @@ describe('POST /signup', () => {
       .post('/api/v1/auth/signup')
       .send(user);
     expect(response.status).toBe(201);
-    expect(response.body.displayName).toBe('jon doe');
+    expect(response.body.name).toBe('jon');
     expect(response.body.email).toBe('jon.doe@example.com');
     expect(response.body.password).toBeUndefined();
   });

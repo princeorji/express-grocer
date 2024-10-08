@@ -4,10 +4,10 @@ const env = require('../utils/setEnv');
 const jwt = require('jsonwebtoken');
 
 const signup = async (req, res, next) => {
-  const { displayName, email, password } = req.body;
+  const { name, email, password } = req.body;
 
   try {
-    if (!displayName || !email || !password) {
+    if (!name || !email || !password) {
       return res.status(400).json({ error: 'Parameters missing' });
     }
 
@@ -18,7 +18,7 @@ const signup = async (req, res, next) => {
 
     const hashedPassword = await argon.hash(password);
     const user = await User.create({
-      displayName,
+      name,
       email,
       password: hashedPassword,
     });
