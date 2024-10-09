@@ -4,11 +4,13 @@ const productRoutes = require('./product.routes');
 const authRoutes = require('./auth.routes');
 const cartRoutes = require('./cart.routes')
 const orderRoutes = require('./order.routes')
+const userRoutes = require('./user.routes')
 
 const routes = express.Router();
 
 routes.use('/auth', authRoutes);
 routes.use('/products', productRoutes);
+routes.use('/users', passport.authenticate('jwt', { session: false }), userRoutes);
 routes.use('/cart', passport.authenticate('jwt', { session: false }), cartRoutes);
 routes.use('/orders', passport.authenticate('jwt', { session: false }), orderRoutes);
 
