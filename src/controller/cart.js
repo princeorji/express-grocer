@@ -31,7 +31,6 @@ const addToCart = async (req, res, next) => {
     }
 
     let item = await CartItem.findOne({ cartId: cart._id, productId });
-
     if (item) {
       item.quantity += quantity;
       await item.save();
@@ -110,17 +109,14 @@ const checkout = async (req, res, next) => {
     }
 
     const items = await CartItem.find({ cartId: id });
-
     if (items.length === 0) {
       return res.status(200).json({ message: 'Your cart is empty' });
     }
 
     // Calculate total price
     let total = 0;
-
     for (const item of items) {
       const product = await Product.findOne({ _id: item.productId });
-
       if (product && product.price) {
         total += product.price * item.quantity;
       }
@@ -161,16 +157,13 @@ const finalizeOrder = async (req, res, next) => {
     }
 
     const items = await CartItem.find({ cartId: id });
-
     if (items.length === 0) {
       return res.status(200).json({ message: 'Your cart is empty' });
     }
 
     let total = 0;
-
     for (const item of items) {
       const product = await Product.findById(item.productId);
-
       if (product && product.price) {
         total += product.price * item.quantity;
       }
@@ -184,7 +177,6 @@ const finalizeOrder = async (req, res, next) => {
 
     for (const item of items) {
       const product = await Product.findById(item.productId);
-
       await OrderItem.create({
         orderId: order._id,
         productId: item.productId,
