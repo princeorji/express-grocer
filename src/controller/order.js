@@ -7,7 +7,6 @@ const orders = async (req, res, next) => {
 
   try {
     const orders = await Order.find({ userId });
-
     if (orders.length === 0) {
       return res
         .status(200)
